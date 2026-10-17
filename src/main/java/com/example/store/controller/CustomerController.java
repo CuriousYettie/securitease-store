@@ -15,14 +15,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/customer")
 @RequiredArgsConstructor
-public class CustomerController {
-
+public class CustomerController
+{
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
     @GetMapping
-    public List<CustomerDTO> getAllCustomers() {
-        return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
+    public List<CustomerDTO> getAllCustomers(@RequestParam(required = false) String name) {
+        if (name == null || name.isEmpty()) {
+            return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
+        }
+        return customerMapper.customersToCustomerDTOs(customerRepository.findByNameContainingIgnoreCase(name));
     }
 
     @PostMapping
