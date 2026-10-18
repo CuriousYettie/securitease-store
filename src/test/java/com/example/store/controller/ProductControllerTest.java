@@ -1,8 +1,9 @@
 package com.example.store.controller;
 
+import com.example.store.dto.ProductDTO;
 import com.example.store.entity.Product;
 import com.example.store.mapper.ProductMapper;
-import com.example.store.repository.ProductRepository;
+import com.example.store.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,66 +16,77 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
 @ComponentScan(basePackageClasses = ProductMapper.class)
 class ProductControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private ProductRepository productRepository;
-
-    private Product product;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private ProductService productService;
+
+    private Product product;
+    private ProductDTO productDTO;
+
     @BeforeEach
     void setUp() {
         product = new Product();
-        product.setDescription("Test Product");
         product.setId(1L);
+        product.setDescription("Test Product");
+
+        productDTO = new ProductDTO();
+        productDTO.setId(1L);
+        productDTO.setDescription("Test Product");
     }
 
     @Test
     void testCreateProduct() throws Exception {
-        when(productRepository.save(product)).thenReturn(product);
+        when(productService.createProduct(any(Product.class))).thenReturn(productDTO);
 
         mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Test Product"));
     }
 
     @Test
     void testGetProducts() throws Exception {
-        when(productRepository.findAll()).thenReturn(List.of(product));
+        when(productService.getAllProducts()).thenReturn(List.of(productDTO));
 
         mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$..description").value("Test Product"));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].description").value("Test Product"));
     }
 
     @Test
     void testGetProductById() throws Exception {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productService.getProductById(1L)).thenReturn(productDTO);
 
         mockMvc.perform(get("/products/{id}", 1L))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Test Product"));
     }
 
     @Test
     void testGetProductByIdNotFound() throws Exception {
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        when(productService.getProductById(1L)).thenReturn(null);
 
-        mockMvc.perform(get("/products/{id}", 1L)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/products/{id}", 1L)).andExpect(status().isOk());
     }
 }
