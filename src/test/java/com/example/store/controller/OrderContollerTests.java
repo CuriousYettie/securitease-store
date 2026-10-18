@@ -94,7 +94,6 @@ class OrderControllerTests {
     void testGetOrderByIdNotFound() throws Exception {
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/order/{id}", 1L))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/order/{id}", 1L)).andExpect(status().isNotFound());
     }
 }
