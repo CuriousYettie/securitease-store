@@ -60,6 +60,26 @@ class CustomerControllerTests {
         mockMvc.perform(get("/customer"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..name").value("John Doe"));
-        ;
+    }
+
+    @Test
+    void testGetAllCustomersByName() throws Exception {
+        when(customerRepository.findByNameContainingIgnoreCase("John")).thenReturn(List.of(customer));
+
+        mockMvc.perform(get("/customer").param("name", "John"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$..name").value("John Doe"));
+    }
+
+    @Test
+    void testGetAllCustomersOnSubstring() throws Exception {
+        Customer customer = new Customer();
+        customer.setName("Vanessa de Jager");
+
+        when(customerRepository.findByNameContainingIgnoreCase("ness")).thenReturn(List.of(customer));
+
+        mockMvc.perform(get("/customer").param("name", "ness"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$..name").value("Vanessa de Jager"));
     }
 }
