@@ -69,7 +69,6 @@ class CustomerControllerTests {
         mockMvc.perform(get("/customer").param("name", "John"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..name").value("John Doe"));
-
     }
 
     @Test
@@ -82,6 +81,5 @@ class CustomerControllerTests {
         mockMvc.perform(get("/customer").param("name", "ness"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..name").value("Vanessa de Jager"));
-
     }
 }
