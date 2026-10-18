@@ -2,6 +2,7 @@ package com.example.store.controller;
 
 import com.example.store.dto.ProductDTO;
 import com.example.store.entity.Product;
+import com.example.store.exceptions.ProductNotFoundException;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,8 +86,8 @@ class ProductControllerTest {
 
     @Test
     void testGetProductByIdNotFound() throws Exception {
-        when(productService.getProductById(1L)).thenReturn(null);
+        when(productService.getProductById(1L)).thenThrow(new ProductNotFoundException("Product not found with id: 1"));
 
-        mockMvc.perform(get("/products/{id}", 1L)).andExpect(status().isOk());
+        mockMvc.perform(get("/products/{id}", 1L)).andExpect(status().isNotFound());
     }
 }

@@ -2,6 +2,7 @@ package com.example.store.controller;
 
 import com.example.store.dto.OrderDTO;
 import com.example.store.entity.Order;
+import com.example.store.exceptions.InvalidOrderException;
 import com.example.store.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,8 @@ public class OrderController {
     public OrderDTO createOrder(@RequestBody Order order) {
         try {
             return orderService.createOrder(order);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create order");
+        } catch (InvalidOrderException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 }

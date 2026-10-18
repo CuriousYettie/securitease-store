@@ -2,7 +2,9 @@ package com.example.store.controller;
 
 import com.example.store.dto.OrderCustomerDTO;
 import com.example.store.dto.OrderDTO;
+import com.example.store.dto.OrderProductDTO;
 import com.example.store.entity.Order;
+import com.example.store.entity.Product;
 import com.example.store.exceptions.OrderNotFoundException;
 import com.example.store.mapper.OrderMapper;
 import com.example.store.service.OrderService;
@@ -50,6 +52,10 @@ class OrderControllerTests {
         order = new Order();
         order.setId(1L);
         order.setDescription("Test Order");
+        Product product = new Product();
+        product.setId(1L);
+        product.setDescription("Test Product");
+        order.setProducts(List.of(product));
 
         OrderCustomerDTO customerDTO = new OrderCustomerDTO();
         customerDTO.setId(1L);
@@ -59,6 +65,10 @@ class OrderControllerTests {
         orderDTO.setId(1L);
         orderDTO.setDescription("Test Order");
         orderDTO.setCustomer(customerDTO);
+        OrderProductDTO productDTO = new OrderProductDTO();
+        productDTO.setId(1L);
+        productDTO.setDescription("Test Product");
+        orderDTO.setProducts(List.of(productDTO));
     }
 
     @Test
@@ -71,7 +81,9 @@ class OrderControllerTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Test Order"))
-                .andExpect(jsonPath("$.customer.name").value("John Doe"));
+                .andExpect(jsonPath("$.customer.name").value("John Doe"))
+                .andExpect(jsonPath("$.products[0].id").value(1L))
+                .andExpect(jsonPath("$.products[0].description").value("Test Product"));
     }
 
     @Test

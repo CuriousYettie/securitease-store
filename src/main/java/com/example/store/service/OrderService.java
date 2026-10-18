@@ -39,6 +39,10 @@ public class OrderService {
     }
 
     public OrderDTO createOrder(Order order) {
+        if (order.getProducts() == null || order.getProducts().isEmpty()) {
+            throw new InvalidOrderException("An order must contain at least one product");
+        }
+
         try {
             return orderMapper.orderToOrderDTO(orderRepository.save(order));
         } catch (Exception ex) {
